@@ -54,11 +54,18 @@ def detect(save_img=False):
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
+        #np.savetxt("input_channel0.txt", img[0,:,:], fmt='%.5f', delimiter='\n')
+        #np.savetxt("input_channel1.txt", img[1,:,:], fmt='%.5f', delimiter='\n')
+        #np.savetxt("input_channel2.txt", img[2,:,:], fmt='%.5f', delimiter='\n')
+        
         if img.ndimension() == 3:
+            # fill the batchdize dimension with 1
             img = img.unsqueeze(0)
 
         # Inference
         t1 = torch_utils.time_synchronized()
+        # what's the pred?
+        #[1, 20160, 85]
         pred = model(img, augment=opt.augment)[0]
 
         # Apply NMS
@@ -95,6 +102,7 @@ def detect(save_img=False):
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         with open(txt_path + '.txt', 'a') as f:
                             f.write(('%g ' * 5 + '\n') % (cls, *xywh))  # label format
+                            #f.write(('%g ' * 6 + '\n') % (cls, conf, *xyxy))  # label format
 
                     if save_img or view_img:  # Add bbox to image
                         label = '%s %.2f' % (names[int(cls)], conf)
@@ -151,6 +159,15 @@ if __name__ == '__main__':
     parser.add_argument('--update', action='store_true', help='update all models')
     opt = parser.parse_args()
     print(opt)
+    
+    opt.weights = '/Users/devandong/tencent/yolov5/yolov5/yolov5s.pt'
+    #opt.weights = '/Users/devandong/tencent/yolov5/onnx/448x640/yolov5s.pt'
+    opt.task = 'val'
+    opt.source='/Users/devandong/tencent/yolov5/test_images/'
+    opt.ouput='/Users/devandong/tencent/yolov5/detected_images/'
+    opt.device = 'cpu'
+    opt.view_img = False
+    opt.save_txt = True
 
     with torch.no_grad():
         if opt.update:  # update all models (to fix SourceChangeWarning)

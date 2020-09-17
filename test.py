@@ -242,6 +242,7 @@ if __name__ == '__main__':
     opt.data = check_file(opt.data)  # check file
     print(opt)
 
+    
     # task = 'val', 'test', 'study'
     if opt.task in ['val', 'test']:  # (default) run normally
         test(opt.data,

@@ -571,7 +571,10 @@ def non_max_suppression(prediction, conf_thres=0.1, iou_thres=0.6, merge=False, 
         # Apply constraints
         # x[((x[..., 2:4] < min_wh) | (x[..., 2:4] > max_wh)).any(1), 4] = 0  # width-height
         x = x[xc[xi]]  # confidence
-
+        
+        #filename = "prenmx.txt"
+        #np.savetxt(filename, x.numpy(), fmt='%.5f')
+        
         # If none remain process next image
         if not x.shape[0]:
             continue
@@ -581,6 +584,9 @@ def non_max_suppression(prediction, conf_thres=0.1, iou_thres=0.6, merge=False, 
 
         # Box (center x, center y, width, height) to (x1, y1, x2, y2)
         box = xywh2xyxy(x[:, :4])
+
+        scores = x[:, 5:].numpy()
+        max_score = scores.max(axis=1)
 
         # Detections matrix nx6 (xyxy, conf, cls)
         if multi_label:
